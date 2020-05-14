@@ -43,10 +43,10 @@ if __name__ == '__main__':
     dataloader = DataLoader(dataset, batch_size=24)
 
     eval_dataloader = DataLoader(MSUDenseLeavesDataset(args.dataset_filepath[:-1] + '_eval/', args.predictions_number),
-                                 shuffle=True, batch_size=24)
+                                shuffle=True, batch_size=24)
     # todo totally arbitrary weights
     model = PyramidNet(n_layers=5, loss_weights=[torch.tensor([1.0])]*5)#, torch.tensor([1.1]), torch.tensor([1.8]),
-                                                 # torch.tensor([3.2]), torch.tensor([9.0])])
+                                                # torch.tensor([3.2]), torch.tensor([9.0])])
     if args.load_model:
         model.load_state_dict(torch.load(args.load_model))
     model = model.to(device)
@@ -81,11 +81,12 @@ if __name__ == '__main__':
             if batch_no % args.log_interval == 0:
                 print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
                     epoch, batch_no*24, len(dataset),
-                           100. * batch_no * 24 / len(dataloader), loss.item()))
+                          100. * batch_no * 24 / len(dataloader), loss.item()))
 
                 evaluate(model, eval_dataloader)
 
-            torch.save(model.state_dict(), args.save_path+'pyramid_net.pt')
+            if (epoch % 25 == 0) or epoch == args.epochs - 1:
+                torch.save(model.state_dict(), args.save_path + 'pyramid_net_' + str(epoch) +'.pt')
             # visualize result
             if viz:
                 with torch.no_grad():
